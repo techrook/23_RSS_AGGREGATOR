@@ -36,6 +36,10 @@ func main() {
 	if err != nil {
 		log.Fatal("Can't connect to the database", err)
 	}
+
+	apiCfg := apiConfig{
+		DB:database.New(conn),
+	}
 	router:= chi.NewRouter()
 
 	router.Use(cors.Handler(cors.Options{
@@ -50,6 +54,7 @@ func main() {
 	v1Router := chi.NewRouter()
 	v1Router.Get("/healthz", handlerReadiness)
 	v1Router.Get("/err", handlerErr)
+	v1Router.Post("/users", apiCfg.handlerCreateUser)
 
 	router.Mount("/v1", v1Router)
 	server:= &http.Server{
@@ -57,7 +62,7 @@ func main() {
 		Addr: ":" + portString,
 	}
 	log.Printf("Server starting on port %v", portString)
-	err := server.ListenAndServe()
+	err = server.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
 	}
