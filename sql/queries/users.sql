@@ -1,4 +1,9 @@
 -- name: CreateUser :one
-INSERT INTO users (id, create_at, update_at, name )
-VALUES ($1, $2, $3, $4)
-RETURNING *; 
+INSERT INTO users (id, create_at, update_at, name, api_key )
+VALUES ($1, $2, $3, $4,
+    encode(sha256(random()::text::bytea), 'hex')
+)
+RETURNING *;
+
+-- name: GetUserByApiKey :one
+SELECT * FROM users WHERE api_key = $1;
